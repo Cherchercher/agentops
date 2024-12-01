@@ -117,7 +117,12 @@ def check_call_stack_for_agent_id() -> Union[UUID, None]:
         local_vars = frame_info.frame.f_locals
         for var in local_vars.values():
             # We stop looking up the stack at main because after that we see global variables
-            if var == "__main__":
+            # in lambda, the base is not main
+            if isinstance(var, str):
+                logger.debug(
+                    "LLM call with var: %s",
+                    var,
+                )
                 return None
             if hasattr(var, "agent_ops_agent_id") and getattr(
                 var, "agent_ops_agent_id"
